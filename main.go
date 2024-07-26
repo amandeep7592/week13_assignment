@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// Function to mix two colors and return the resulting color
+
 func mixColors(color1, color2 string) string {
 	mixedColor := ""
 	switch color1 {
@@ -40,7 +40,7 @@ func mixColors(color1, color2 string) string {
 	return mixedColor
 }
 
-// Handler function for the HTTP request
+
 func colorHandler(w http.ResponseWriter, r *http.Request) {
 	hostname, err := os.Hostname()
 	if err != nil {

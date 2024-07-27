@@ -1,70 +1,60 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
+    "fmt"
+    "net/http"
+    "os"
 )
 
-type MixRequest struct {
-	Color1 string `json:"color1"`
-	Color2 string `json:"color2"`
-}
+func handler(w http.ResponseWriter, r *http.Request) {
+    hostname, err := os.Hostname()
+    if err != nil {
+        fmt.Fprintf(w, "Error getting hostname: %v", err)
+        return
+    }
 
-type MixResponse struct {
-	ResultColor string `json:"result_color"`
-	Message     string `json:"message"`
-}
+    // HTML content with simple styles
+    htmlContent := fmt.Sprintf(`
+        <html>
+        <head>
+            <style>
+                body {
+                    background-color: #f0f0f0;
+                    font-family: Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                }
+                .container {
+                    text-align: center;
+                    background-color: #fff;
+                    padding: 20px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    border-radius: 8px;
+                }
+                h1 {
+                    color: #333;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Hostname: %s</h1>
+            </div>
+        </body>
+        </html>
+    `, hostname)
 
-func mixColorsHandler(w http.ResponseWriter, r *http.Request) {
-	var mixRequest MixRequest
-	err := json.NewDecoder(r.Body).Decode(&mixRequest)
-	if err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return
-	}
-
-	resultColor, message := mixColors(mixRequest.Color1, mixRequest.Color2)
-
-	response := MixResponse{
-		ResultColor: resultColor,
-		Message:     message,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-}
-
-func mixColors(color1, color2 string) (string, string) {
-	colorMixes := map[string]string{
-		"red+blue":   "purple",
-		"red+yellow": "orange",
-		"blue+yellow":"green",
-		"blue+red":   "purple",
-		"yellow+red": "orange",
-		"yellow+blue":"green",
-	}
-
-	if color1 == color2 {
-		return color1, "Same colors"
-	}
-
-	result, exists := colorMixes[color1+"+"+color2]
-	if !exists {
-		result, exists = colorMixes[color2+"+"+color1]
-	}
-
-	if !exists {
-		return "unknown", "Unknown color combination"
-	}
-
-	return result, "Mixed successfully"
+    w.Header().Set("Content-Type", "text/html")
+    fmt.Fprint(w, htmlContent)
 }
 
 func main() {
-	http.HandleFunc("/mix", mixColorsHandler)
-	fmt.Println("Starting server on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		fmt.Printf("Could not start server: %s\n", err)
-	}
+    http.HandleFunc("/", handler)
+    fmt.Println("Starting server on port 80")
+    if err := http.ListenAndServe(":80", nil); err != nil {
+        fmt.Printf("Error starting server: %v\n", err)
+    }
 }

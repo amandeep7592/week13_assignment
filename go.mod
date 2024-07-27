@@ -1,3 +1,3 @@
-module github.com/amandeep7592/week13_assignment
+module main.go
 
-go 1.22.5
+go 1.20

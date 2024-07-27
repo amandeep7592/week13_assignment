@@ -1,0 +1,6 @@
+version: "3"
+services:
+  go-app:
+    image: your_dockerhub_username/go-app
+    ports:
+      - "80:80"
